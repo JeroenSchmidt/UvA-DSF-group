@@ -65,7 +65,7 @@ def get_state_ABRV(place_full_name):
     
     
     if abrv == "USA":
-        regex = r'([A-Z])[a-z]*(?=,)'
+        regex = r'(([A-Z][a-z]* [A-Z][a-z]*)|[A-Z][a-z]*)(?=,)'
         match_state_name = re.search(regex, place_full_name)
         
         if match_state_name == None:
