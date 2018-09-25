@@ -12,7 +12,6 @@ Group Projects for the Data Science Fundamentals Course at UvA
 #### Demographics
 
 * <a href='https://factfinder.census.gov/faces/tableservices/jsf/pages/productview.xhtml?pid=PEP_2017_PEPAGESEX&prodType=table'>Age per State</a>
-
 * <a href='https://factfinder.census.gov/faces/tableservices/jsf/pages/productview.xhtml?pid=ACS_16_1YR_S0201&prodType=table'>Population Profile</a>
 
 #### Employment
@@ -35,4 +34,4 @@ Group Projects for the Data Science Fundamentals Course at UvA
 
 #### Religion
 
-* <a href='http://www.pewresearch.org/fact-tank/2016/02/29/how-religious-is-your-state/?state=alabama>How Religious is Your State?</a>
+* <a href='http://www.pewresearch.org/fact-tank/2016/02/29/how-religious-is-your-state/?state=alabama'>How Religious is Your State?</a>
