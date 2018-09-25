@@ -22,3 +22,7 @@ Group Projects for the Data Science Fundamentals Course at UvA
 #### Education
 
 * <a href='https://en.wikipedia.org/wiki/List_of_U.S._states_by_educational_attainment'>Education Data</a>
+
+#### Political Affiliation
+
+* <a href='http://www.pewforum.org/religious-landscape-study/compare/party-affiliation/by/state/'>Political Affiliation - Pew</a>
