@@ -9,6 +9,12 @@ Group Projects for the Data Science Fundamentals Course at UvA
 
 ### Additional Datasets
 
+#### Demographics
+
+* <a href='https://factfinder.census.gov/faces/tableservices/jsf/pages/productview.xhtml?pid=PEP_2017_PEPAGESEX&prodType=table'>Age per State</a>
+
+* <a href='https://factfinder.census.gov/faces/tableservices/jsf/pages/productview.xhtml?pid=ACS_16_1YR_S0201&prodType=table'>Population Profile</a>
+
 #### Employment
 
 * <a href='https://data.world/garyhoov/unemployment-rate-by-city'>US Employment by City</a>
@@ -26,3 +32,7 @@ Group Projects for the Data Science Fundamentals Course at UvA
 #### Political Affiliation
 
 * <a href='http://www.pewforum.org/religious-landscape-study/compare/party-affiliation/by/state/'>Political Affiliation - Pew</a>
+
+#### Religion
+
+* <a href='http://www.pewresearch.org/fact-tank/2016/02/29/how-religious-is-your-state/?state=alabama>How Religious is Your State?</a>
