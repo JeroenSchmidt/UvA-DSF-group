@@ -1,4 +1,8 @@
 
+
+# OSX DS files
+.DS_Store
+
 # Data Files
 */data/*
 
