@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 # %%
-# Note - The paths here imply you started your kernel on the script's folder.
+# Note - The paths here imply you started your kernel on the week3-4 folder.
 import sys
-lib_dir = "../../libs/"
+lib_dir = "libs/"
 if lib_dir not in sys.path:
     sys.path.append(lib_dir)
 
@@ -14,7 +14,7 @@ from nltk import FreqDist, tokenize
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
-PATH_FILE = '../../data/cp_tweets.pkl'
+PATH_FILE = 'data/cp_tweets.pkl'
 
 # %%
 tweets = pd.read_pickle(PATH_FILE)
