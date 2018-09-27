@@ -36,6 +36,6 @@ Group Projects for the Data Science Fundamentals Course at UvA
 
 * <a href='http://www.pewresearch.org/fact-tank/2016/02/29/how-religious-is-your-state/?state=alabama'>How Religious is Your State?</a>
 
-#### List of Rallies for Trump's Campaign
+#### List of Rallies for Trump's and Hillary's Campaign
 
-* <a href='https://en.wikipedia.org/wiki/List_of_rallies_for_the_Donald_Trump_presidential_campaign,_2016'>Wikipedia</a>
+* <a href='https://github.com/fivethirtyeight/data/tree/master/presidential-campaign-trail'>Wikipedia</a>
