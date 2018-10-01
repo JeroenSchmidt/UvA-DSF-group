@@ -11,10 +11,9 @@ import preprocessor
 import pandas as pd
 import re
 from nltk import FreqDist, tokenize
-from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
-PATH_FILE = 'data/cp_tweets.pkl'
+PATH_FILE = 'data/bp_tweets.pkl'
 
 # %%
 tweets = pd.read_pickle(PATH_FILE)
@@ -30,26 +29,16 @@ tweets['text'] = tweets['text'].str.replace(r'trump', '', flags=re.MULTILINE)
 tweets['text'] = tweets['text'].str.replace(r'hillary', '', flags=re.MULTILINE)
 tweets['text'] = tweets['text'].str.replace(r'clinton', '', flags=re.MULTILINE)
 
+#%% Remove most common words
+text = tweets['text'].str.lower().str.cat(sep=' ')
+tokens = tokenize.word_tokenize(text)
+word_dist = FreqDist(tokens)
+most_common_words = [word for word, freq in word_dist.most_common(10)]
+tweets['text'] = tweets['text'].apply(lambda x: " ".join(x for x in x.split() if x not in most_common_words))
+
 #%% 
 print("Number of tweets that won't be needed after text pre-processing: ", sum(tweets['text'] == ""))
-
-#%%
-# Keep only the tweets that have meaningful text
 tweets = tweets[tweets['text'] != ""]
-len(tweets)
 
-#%% Generate word cloud
-wordlist = ' '.join(tweets['text'])
-wordcloud = WordCloud().generate(wordlist)
-
-#%%
-plt.imshow(wordcloud, interpolation='bilinear')
-plt.axis("off")
-plt.show()
-
-#%%
-text = tweets['text'].str.lower().str.cat(sep=' ')
-words = tokenize.word_tokenize(text)
-#%%
-word_dist = FreqDist(words)
-word_dist.plot(30, cumulative = False)
+#%% Save to pickle
+#tweets.to_pickle('data/ap_tweets.pkl')

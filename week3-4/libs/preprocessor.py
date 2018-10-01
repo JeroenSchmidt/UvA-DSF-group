@@ -2,6 +2,7 @@
 import re
 import string
 from nltk.corpus import stopwords
+from textblob import TextBlob
 
 
 stop_words = set(stopwords.words('english'))
@@ -9,7 +10,6 @@ stop_words = set(stopwords.words('english'))
 def remove_hashtags(text):
     text = re.sub('#\S+', '', text, flags = re.MULTILINE)
     return text
-
 
 def remove_stopwords(text):
     text = [word.lower() for word in text.split() if word.lower() not in stop_words]
@@ -54,8 +54,11 @@ def preprocess_tweets(tweets):
     tweets = tweets.apply(remove_numbers)
     # Remove words that start with a number. To eliminate cases of 000000in etc.
     tweets = tweets.apply(remove_words_with_numbers)
-    ## Remove ampersand
+    # Remove ampersand
     tweets = tweets.apply(remove_ampersand)
+    # Correct spelling
+    # print('correcting spelling')
+    # tweets = tweets.apply(lambda x: str(TextBlob(x).correct()))
     
     return tweets
     
