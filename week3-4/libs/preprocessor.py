@@ -8,7 +8,7 @@ from textblob import TextBlob
 stop_words = set(stopwords.words('english'))
 
 def remove_hashtags(text):
-    text = re.sub('#\S+', '', text, flags = re.MULTILINE)
+    text = re.sub(r'#\S+', '', text, flags = re.MULTILINE)
     return text
 
 def remove_stopwords(text):
