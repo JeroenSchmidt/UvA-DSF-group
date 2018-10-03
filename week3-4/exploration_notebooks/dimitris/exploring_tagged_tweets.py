@@ -4,7 +4,6 @@ if lib_dir not in sys.path:
     sys.path.append(lib_dir)
 
 import re
-import preprocessor
 import pandas as pd
 import DSF_helpers
 import geopandas as gpd
@@ -50,4 +49,4 @@ states = gpd.read_file('data/states_21basic/states.shp')
 states = states.merge(tweets_per_state, how = 'inner', left_on = 'STATE_ABBR', right_on = 'state_abrv').drop(columns=['state_abrv'])
 
 states.plot(cmap = 'Reds', column = 'trumpcount')
-states.plot(cmap = 'Reds', column = 'clintoncount')
+states.plot(cmap = 'Blues', column = 'clintoncount')
