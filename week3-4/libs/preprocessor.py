@@ -24,7 +24,12 @@ def remove_mentions(text):
     return text
 
 def remove_punctuation(text):
-    text = text.translate(str.maketrans('', '', string.punctuation))
+    
+    # dont remove # and @, let remove hashtags and remove mentions remove these symbols for us
+    punctuation = string.punctuation.replace("#","")\
+                                       .replace("@","")
+    
+    text = text.translate(str.maketrans('', '', punctuation))
     return text
 
 def remove_numbers(text):
@@ -39,13 +44,26 @@ def remove_ampersand(text):
     text = re.sub(r'amp', '', text, flags=re.MULTILINE)
     return text
 
-def preprocess_tweets(tweets):
+def remove_single_character_words(text):
+    text = re.sub(r'((@|#)\W)|( (@|#) )','', text, flags=re.MULTILINE)
+    return text
+
+def remove_more_then_one_space(text):
+    text = re.sub(r'\s\s+','', text, flags=re.MULTILINE)
+    return text
+
+def preprocess_tweets(tweets, remove_hashtags_arg=True, remove_mentions_arg=True):
     # Remove hyperlinks
     tweets = tweets.apply(remove_hyperlinks)
+    
     # Remove @mentions
-    tweets = tweets.apply(remove_mentions)
-    # Remove #hashtags 
-    tweets = tweets.apply(remove_hashtags)
+    if remove_hashtags_arg:
+        tweets = tweets.apply(remove_mentions)
+
+    # Remove #hashtags     
+    if remove_mentions_arg:
+        tweets = tweets.apply(remove_hashtags)
+    
     # Remove stop words
     tweets = tweets.apply(remove_stopwords)
     # Remove punctuation
@@ -56,6 +74,12 @@ def preprocess_tweets(tweets):
     tweets = tweets.apply(remove_words_with_numbers)
     # Remove ampersand
     tweets = tweets.apply(remove_ampersand)
+    # Remove single letter words
+    tweets = tweets.apply(remove_single_character_words)
+    
+    # Remove more then one spaceing
+    tweets = tweets.apply(remove_more_then_one_space)
+   
     # Correct spelling
     # print('correcting spelling')
     # tweets = tweets.apply(lambda x: str(TextBlob(x).correct()))
