@@ -53,12 +53,12 @@ state_name_pairs = {
 
 import re
 
-def get_state_ABRV(place_full_name):
+def get_state_ABRV(place_full_name, verbose=False):
     regex = r'([A-Z]){2,3}'
     match_ABRV = re.search(regex, place_full_name)
     
     if match_ABRV == None:
-        print("could not find: ",place_full_name)
+        if verbose: print("could not find: ",place_full_name)
         return place_full_name
     
     abrv = match_ABRV.group()
@@ -69,7 +69,7 @@ def get_state_ABRV(place_full_name):
         match_state_name = re.search(regex, place_full_name)
         
         if match_state_name == None:
-            print("could not find: ", place_full_name)
+            if verbose: print("could not find: ", place_full_name)
             return place_full_name
         
         state_name = match_state_name.group()
