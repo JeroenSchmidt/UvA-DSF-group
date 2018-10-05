@@ -4,18 +4,17 @@ if lib_dir not in sys.path:
     sys.path.append(lib_dir)
 
 import re
-import preprocessor
 import pandas as pd
 import DSF_helpers
 import geopandas as gpd
+import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 
 PATH_FILE = 'data/ap_tweets_classified.pkl'
 
 tweets = pd.read_pickle(PATH_FILE)
 tweets = tweets[tweets['about'].notnull()]
-
-states = gpd.read_file('data/states_21basic/states.shp')
 
 # Only look for USA tweets
 logic = (tweets.country == 'United States') & \
@@ -42,6 +41,12 @@ tweets_per_state = tweets_per_state.rename(columns={0: 'trumpcount', 1: 'clinton
 
 most_loud_states = most_loud_states.merge(tweets_per_state, how='inner', on='state_abrv')
 
-
+#%% Plot most loud states and who they tweet about
 df = pd.melt(most_loud_states, id_vars="state_abrv", var_name="category", value_name="totalcount")
 sns.catplot(x='state_abrv', y='totalcount', hue='category', data=df, kind='bar')
+
+states = gpd.read_file('data/states_21basic/states.shp')
+states = states.merge(tweets_per_state, how = 'inner', left_on = 'STATE_ABBR', right_on = 'state_abrv').drop(columns=['state_abrv'])
+
+states.plot(cmap = 'Reds', column = 'trumpcount')
+states.plot(cmap = 'Blues', column = 'clintoncount')
