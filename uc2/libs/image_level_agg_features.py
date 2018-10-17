@@ -28,11 +28,11 @@ def number_of_faces_per_emotion():
 
 def final_like_and_comments():
     '''Returns the number of final likes and comments per image'''
-    image_metrics = pd.read_pickle(__data_dir + "image_metrics.pickle")    
+    image_metrics = __pd.read_pickle(__data_dir + "image_metrics.pickle")    
     
     final_image_stats = image_metrics[["image_id","comment_count","like_count"]].groupby(by="image_id").max().reset_index()
-    final_image_stats.head()
 
+    return final_image_stats
     
 def average_emotions_per_image():
     '''
@@ -82,6 +82,8 @@ def binary_object_matrix(confidence = 0):
         The raw data has a confidence from 70% and above
     '''
     
+    object_labels = __pd.read_pickle(__data_dir + "object_labels.pickle")
+    
     object_labels_l = object_labels.data_amz_label_confidence > confidence
     object_labels_c = object_labels[object_labels_l]
     
@@ -92,9 +94,7 @@ def binary_object_matrix(confidence = 0):
                                 .pivot(index="image_id",columns="data_amz_label",values="data_amz_label_confidence")\
                                 .reset_index()\
                                 .rename_axis('',axis=1)\
-                                .fillna(0)\
-                                .head()
-    
+                                .fillna(0)    
     return obj_counts_p
     
 def anp_average_emotional_scores():
