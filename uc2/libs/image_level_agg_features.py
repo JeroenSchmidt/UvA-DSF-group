@@ -71,5 +71,28 @@ def number_of_gender_faces(confidence = 0):
                                                          "Male":"Num_Male_Faces"})\
                                         .fillna(0)
 
+def binary_object_matrix(confidence = 0):
+    '''
+    Returns a binary matrix (with +-2500) cols - each coresponding to a detected object
+    
+    Arg:
+        confidence: set the min object detection confidence from 0 to 100. anything bellow it will be removed. 
+        The raw data has a confidence from 70% and above
+    '''
+    
+    object_labels_l = object_labels.data_amz_label_confidence > confidence
+    object_labels_c = object_labels[object_labels_l]
+    
+    obj_counts = object_labels_c.groupby(by=["image_id","data_amz_label"])\
+                                .count()
+    
+    obj_counts_p = obj_counts.reset_index()\
+                                .pivot(index="image_id",columns="data_amz_label",values="data_amz_label_confidence")\
+                                .reset_index()\
+                                .rename_axis('',axis=1)\
+                                .fillna(0)\
+                                .head()
+    
+    return obj_counts_p
     
     
