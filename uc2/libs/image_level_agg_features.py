@@ -32,3 +32,44 @@ def final_like_and_comments():
     
     final_image_stats = image_metrics[["image_id","comment_count","like_count"]].groupby(by="image_id").max().reset_index()
     final_image_stats.head()
+
+    
+def average_emotions_per_image():
+    '''
+    Returns the mean of each emotion within an image. 
+    Note: if an image has 6 faces and only 2 faces are sad, the mean will only be of the emotions assocaited to those 2 faces.
+    '''
+    face = __pd.read_pickle(__data_dir + 'face.pickle')
+
+    face = face.pivot_table(aggfunc="mean",index=["image_id"],columns="face_emo",values="emo_confidence")\
+                    .reset_index()\
+                    .rename_axis('',axis=1)
+    
+    return face
+
+
+def number_of_gender_faces(confidence = 0):
+    '''
+    Returns the number of male and female faces in an image. 
+    
+    You can specify the confidence from 0 to 100 of the gender identification. 
+    '''
+    
+    conf_l = face.face_gender_confidence > confidence
+    face_c = face[conf_l]
+
+    number_of_gender = face_c[["image_id","face_id","face_gender"]]\
+                            .drop_duplicates()\
+                            .groupby(by=["image_id","face_gender"])\
+                            .count()
+
+    number_of_gender = number_of_gender.rename(columns={"face_id":"number_of_faces"}).reset_index()
+    number_of_gender = number_of_gender.pivot(columns="face_gender",values="number_of_faces",index="image_id")\
+                                        .reset_index()\
+                                        .rename_axis('',axis=1)\
+                                        .rename(columns={"Female":"Num_Female_Faces",
+                                                         "Male":"Num_Male_Faces"})\
+                                        .fillna(0)
+
+    
+    
