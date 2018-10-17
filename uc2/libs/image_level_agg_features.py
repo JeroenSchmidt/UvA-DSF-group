@@ -70,6 +70,8 @@ def number_of_gender_faces(confidence = 0):
                                         .rename(columns={"Female":"Num_Female_Faces",
                                                          "Male":"Num_Male_Faces"})\
                                         .fillna(0)
+    
+    return number_of_gender
 
 def binary_object_matrix(confidence = 0):
     '''
@@ -94,5 +96,22 @@ def binary_object_matrix(confidence = 0):
                                 .head()
     
     return obj_counts_p
+    
+def anp_average_emotional_scores():
+    '''
+    Returns the average anp emotion score attached to an emoation label.
+    '''
+    anp = pd.read_pickle(_data_dir + "anp.pickle")
+    
+    avg_emo_scores = anp[["image_id","emotion_label","emotion_score"]]\
+                        .groupby(by=["image_id","emotion_label"])\
+                        .mean()\
+                        .reset_index()\
+                        .pivot(index="image_id",columns="emotion_label",values="emotion_score")\
+                        .fillna(0)\
+                        .reset_index()\
+                        .rename_axis('',axis=1)
+
+    return avg_emo_scores
     
     
