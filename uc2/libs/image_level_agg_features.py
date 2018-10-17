@@ -12,14 +12,14 @@ def number_of_faces():
     return number_of_face
 
 
-def number_of_faces_per_emotion():
+def number_of_faces_per_emotion(confidence = 75):
     '''Returns the number of faces per emotion within an image.'''
     face = __pd.read_pickle(__data_dir + 'face.pickle')
     
-    num_faces = face[["image_id","face_emo","emo_confidence"]]\
+    num_faces = face[["image_id","face_emo","emo_confidence"]][face.emo_confidence >= confidence]\
             .groupby(by=["image_id","face_emo"]).count()\
             .reset_index()\
-            .pivot(index="image_id",values="emo_confidence",columns="face_emo")\
+            .pivot_table(index="image_id",values="emo_confidence",columns="face_emo",fill_value=0)\
             .reset_index()\
             .rename_axis('',axis=1)
            
