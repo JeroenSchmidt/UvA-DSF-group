@@ -28,11 +28,27 @@ def number_of_faces_per_emotion(confidence = 75):
 
 def final_like_and_comments():
     '''Returns the number of final likes and comments per image'''
-    image_metrics = __pd.read_pickle(__data_dir + "image_metrics.pickle")    
-    
-    final_image_stats = image_metrics[["image_id","comment_count","like_count"]].groupby(by="image_id").max().reset_index()
+    image_metrics = __pd.read_pickle(__data_dir + "image_metrics.pickle") 
 
-    return final_image_stats
+    # Sort by id & date, drop_duplicates per image_id by keeping the last.
+    final_likes = image_metrics.sort_values(by=['image_id', 'like_count_time_created'])[['image_id', 'like_count_time_created', 'like_count']]
+    final_likes = final_likes.drop_duplicates(subset=['image_id'], keep='last')[['image_id', 'like_count']]
+    final_likes = final_likes.rename(columns = {'like_count': 'final_like_count'})
+
+    final_comments = image_metrics.sort_values(by=['image_id', 'comment_count_time_created'])[['image_id', 'comment_count_time_created', 'comment_count']]
+    final_comments = final_comments.drop_duplicates(subset=['image_id'], keep='last')[['image_id','comment_count']]
+    final_comments = final_comments.rename(columns = {'comment_count': 'final_comment_count'})
+
+    image_metrics_updated = image_metrics.merge(final_likes, 'inner', 'image_id')
+    image_metrics_updated = image_metrics_updated.drop_duplicates('image_id')
+
+    image_metrics_updated = image_metrics_updated.merge(final_comments, 'inner', 'image_id')
+    image_metrics_updated = image_metrics_updated.drop(['comment_count', 'comment_count_time_created', 'like_count', 'like_count_time_created'],axis = 1)
+    image_metrics_updated = image_metrics_updated.rename(columns = {'final_like_count': 'likes', 'final_comment_count': 'comments'})
+    
+    # final_image_stats = image_metrics[["image_id","comment_count","like_count"]].groupby(by="image_id").max().reset_index()
+
+    return image_metrics_updated
     
 def average_emotions_per_image():
     '''
