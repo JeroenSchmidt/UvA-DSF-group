@@ -73,15 +73,9 @@ def avg_number_of_faces_from_photos_with_faces():
     .merge(num_faces,on="image_id",how="inner")\
     .fillna(0)\
     .groupby("user_id")\
-<<<<<<< HEAD
     .mean()\
     .rename(columns = {'number_of_face': 'avg_number_of_faces_over_images_with_faces'})
 
-    
-=======
-    .mean()
-
->>>>>>> 3af56b2b498866eca7291fc3dbfdb5c7bb9b95ea
     return out
 
 def avg_number_of_faces_over_all_photos():
