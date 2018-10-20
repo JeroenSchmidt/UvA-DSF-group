@@ -29,7 +29,7 @@ def number_of_faces_per_emotion(confidence = 75):
 
 def final_like_and_comments():
     '''Returns the number of final likes and comments per image'''
-    image_metrics = __pd.read_pickle(__data_dir + "image_metrics.pickle") 
+    image_metrics = __pd.read_pickle(__data_dir + "image_metrics.pickle")
 
     # Sort by id & date, drop_duplicates per image_id by keeping the last.
     final_likes = image_metrics.sort_values(by=['image_id', 'like_count_time_created'])[['image_id', 'like_count_time_created', 'like_count']]
@@ -46,7 +46,7 @@ def final_like_and_comments():
     image_metrics_updated = image_metrics_updated.merge(final_comments, 'inner', 'image_id')
     image_metrics_updated = image_metrics_updated.drop(['comment_count', 'comment_count_time_created', 'like_count', 'like_count_time_created'],axis = 1)
     image_metrics_updated = image_metrics_updated.rename(columns = {'final_like_count': 'likes', 'final_comment_count': 'comments'})
-    
+
     # final_image_stats = image_metrics[["image_id","comment_count","like_count"]].groupby(by="image_id").max().reset_index()
 
     return image_metrics_updated
@@ -131,4 +131,11 @@ def anp_avg_emotional_scores():
 
     return avg_emo_scores
     
-    
+def ratio_gender(confidence=90):
+    face = __pd.read_pickle(__data_dir + "face.pickle")
+    face_filter = face[face.face_gender_confidence >= confidence][['image_id', 'face_id', 'face_gender']]
+    face_filter = face_filter.drop_duplicates()[['image_id', 'face_gender']]
+    p = __pd.pivot_table(face_filter, index=['image_id'], columns=['face_gender'], aggfunc='size', fill_value=0).reset_index()
+    p = p.assign(ratio_male=p.Male / (p.Male + p.Female))
+    p = p.assign(ratio_female=p.Female / (p.Male + p.Female))
+    return p[['image_id', 'ratio_male', 'ratio_female']]

@@ -10,6 +10,7 @@ def age():
     survey = __pd.read_pickle(__data_dir + "survey.pickle")
     survey["age"] = __pd.to_datetime(survey.start_q).dt.year - survey.born
     survey = survey[["insta_user_id","age"]]
+    survey.columns = ['user_id', 'age']
     return survey
 
 def instagram_account_stats():
@@ -67,22 +68,27 @@ def avg_number_of_faces_from_photos_with_faces():
     '''Returns the average number of faces in photos with faces'''
     image_date = __pd.read_pickle("../../data/Visual_well_being/image_data.pickle")
     num_faces = __img_f.number_of_faces()
-    
+
     out = image_date[["image_id","user_id"]]\
     .merge(num_faces,on="image_id",how="inner")\
     .fillna(0)\
     .groupby("user_id")\
+<<<<<<< HEAD
     .mean()\
     .rename(columns = {'number_of_face': 'avg_number_of_faces_over_images_with_faces'})
 
     
+=======
+    .mean()
+
+>>>>>>> 3af56b2b498866eca7291fc3dbfdb5c7bb9b95ea
     return out
 
 def avg_number_of_faces_over_all_photos():
     '''Returns the average number of faces accross all photos of the user'''
     image_date = __pd.read_pickle("../../data/Visual_well_being/image_data.pickle")
     num_faces = __img_f.number_of_faces()
-    
+
     #of the photos that have faces, what is the average
     out = image_date[["image_id","user_id"]]\
     .merge(num_faces,on="image_id",how="outer")\
@@ -113,16 +119,16 @@ def avg_posts_per_day():
     `late_day`: 12:00-20:00
     `early_night`: 20:00-00:00
     `late_night`: 00:00-8:00
-    
+
     `day`: 8:00-20:00
     `night`: 20:00-8:00
     `whole_day`: the average for the whole date
     '''
-    
+
     image_date = __pd.read_pickle(__data_dir + "image_data.pickle")
     image_date.image_posted_time = __pd.to_datetime(image_date.image_posted_time)
-    
-    x = image_date[["image_posted_time","image_id","user_id"]].drop_duplicates()    
+
+    x = image_date[["image_posted_time","image_id","user_id"]].drop_duplicates()
     early_day_b = x.image_posted_time.isin(x.set_index("image_posted_time").between_time('8:00', '12:00').index)
     late_day_b = x.image_posted_time.isin(x.set_index("image_posted_time").between_time('12:00', '20:00').index)
     early_night_b = x.image_posted_time.isin(x.set_index("image_posted_time").between_time('20:00', '00:00').index)
@@ -143,9 +149,29 @@ def avg_posts_per_day():
     xx = x.drop(columns="image_id",axis=0)\
     .groupby([x.user_id,x.image_posted_time.dt.date])\
     .sum()
-    
+
     out = xx.groupby("user_id").mean()
-    
+
     return out
 
-    
+def percentage_animals():
+    topics = ratio_of_topics()
+    animals = topics[['Animal', 'Pet', 'Dog', 'Cat', 'Canine']]
+    animals = animals.assign(percentage_animals=animals.sum(axis=1))
+    animals['user_id'] = topics.user_id
+    animals = animals[['user_id', 'percentage_animals']]
+    return animals
+
+def average_num_faces_per_image_and_emotion():
+    image_data = __pd.read_pickle(__data_dir + "image_data.pickle")
+    num_faces_df = __img_f.number_of_faces_per_emotion()
+    num_faces_df = __pd.merge(num_faces_df, image_data[['user_id', 'image_id']], on='image_id', how='outer')
+    num_faces_df.fillna(0, inplace=True)
+    return num_faces_df.groupby('user_id').mean().reset_index()
+
+def avg_ratio_gender(confidence=90):
+    image_data = __pd.read_pickle(__data_dir + "image_data.pickle")
+    ratio_gender = __img_f.ratio_gender(confidence)
+    avg_ratio_gender = __pd.merge(ratio_gender, image_data[['user_id', 'image_id']], on='image_id', how='outer')
+    avg_ratio_gender.fillna(0, inplace=True)
+    return avg_ratio_gender.groupby('user_id').mean().reset_index()
