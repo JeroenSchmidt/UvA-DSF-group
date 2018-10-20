@@ -136,9 +136,9 @@ def filter_features():
     filter_features['happy_flt_pct'] = filter_features['happy_filter'] / filter_features['total_photos']
     filter_features['depressed_flt_pct'] = filter_features['depressed_filter'] / filter_features['total_photos']
     filter_features['happy_to_depressed_flt_ratio'] = filter_features['happy_filter'] / filter_features['depressed_filter']
-    filter_features = filter_features.replace([np.inf, -np.inf], np.nan).head()
+    filter_features = filter_features.replace([np.inf, -np.inf], np.nan)
     # Drop not neeed columns
-    filter_features = filter_features.drop(['happy_filter', 'depressed_filter', 'total_photos'], axis=1).head()
+    filter_features = filter_features.drop(['happy_filter', 'depressed_filter', 'total_photos'], axis=1)
 
     return filter_features
     
