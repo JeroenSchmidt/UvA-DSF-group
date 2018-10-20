@@ -186,6 +186,9 @@ def avg_posts_per_day():
     return out
 
 def percentage_animals():
+    '''
+    Returns a column called 'percentage_animals' that informs us what is the percentage of animals that the user has
+    '''
     topics = ratio_of_topics()
     animals = topics[['Animal', 'Pet', 'Dog', 'Cat', 'Canine']]
     animals = animals.assign(percentage_animals=animals.sum(axis=1))
@@ -194,6 +197,9 @@ def percentage_animals():
     return animals
 
 def average_num_faces_per_image_and_emotion():
+    '''
+    Returns the average of faces per emotion that the user has per image
+    '''
     image_data = __pd.read_pickle(__data_dir + "image_data.pickle")
     num_faces_df = __img_f.number_of_faces_per_emotion()
     num_faces_df = __pd.merge(num_faces_df, image_data[['user_id', 'image_id']], on='image_id', how='outer')
@@ -201,6 +207,9 @@ def average_num_faces_per_image_and_emotion():
     return num_faces_df.groupby('user_id').mean().reset_index()
 
 def avg_ratio_gender(confidence=90):
+    '''
+    Returns the average of the gender ratio that the user has per image
+    '''
     image_data = __pd.read_pickle(__data_dir + "image_data.pickle")
     ratio_gender = __img_f.ratio_gender(confidence)
     avg_ratio_gender = __pd.merge(ratio_gender, image_data[['user_id', 'image_id']], on='image_id', how='outer')
