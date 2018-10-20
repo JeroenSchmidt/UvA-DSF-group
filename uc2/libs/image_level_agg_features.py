@@ -1,4 +1,5 @@
 import pandas as __pd
+import numpy as __np
 
 
 __data_dir = "../../data/Visual_well_being/"
@@ -117,7 +118,7 @@ def anp_average_emotional_scores():
     '''
     Returns the average anp emotion score attached to an emoation label.
     '''
-    anp = pd.read_pickle(_data_dir + "anp.pickle")
+    anp = __pd.read_pickle(_data_dir + "anp.pickle")
     
     avg_emo_scores = anp[["image_id","emotion_label","emotion_score"]]\
                         .groupby(by=["image_id","emotion_label"])\

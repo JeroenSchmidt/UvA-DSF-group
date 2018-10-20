@@ -1,10 +1,9 @@
 import pandas as __pd
-
+import numpy as __np
 import image_level_agg_features as __img_f
 
 
 __data_dir = "../../data/Visual_well_being/"
-__expensive_dir = "../../data/expensive_features/"
 
 def age():
     '''Returns age of individual when they filled in the survay'''
@@ -93,4 +92,48 @@ def average_engagement():
     avg_engagement = avg_engagement.rename(columns = {'likes': 'avg_likes', 'comments': 'avg_comments'})
 
     return avg_engagement
+
+
+def avg_posts_per_day():
+    '''
+    Returns the average number of posts per day that the person posted. Returns 7 averages:
+    `early day`: 8:00-12:00
+    `late_day`: 12:00-20:00
+    `early_night`: 20:00-00:00
+    `late_night`: 00:00-8:00
+    
+    `day`: 8:00-20:00
+    `night`: 20:00-8:00
+    `whole_day`: the average for the whole date
+    '''
+    
+    image_date = __pd.read_pickle(__data_dir + "image_data.pickle")
+    image_date.image_posted_time = __pd.to_datetime(image_date.image_posted_time)
+    
+    x = image_date[["image_posted_time","image_id","user_id"]].drop_duplicates()    
+    early_day_b = x.image_posted_time.isin(x.set_index("image_posted_time").between_time('8:00', '12:00').index)
+    late_day_b = x.image_posted_time.isin(x.set_index("image_posted_time").between_time('12:00', '20:00').index)
+    early_night_b = x.image_posted_time.isin(x.set_index("image_posted_time").between_time('20:00', '00:00').index)
+    late_night_b = x.image_posted_time.isin(x.set_index("image_posted_time").between_time('00:00', '8:00').index)
+
+    day_b = x.image_posted_time.isin(x.set_index("image_posted_time").between_time('8:00', '20:00').index)
+    night_b = x.image_posted_time.isin(x.set_index("image_posted_time").between_time('20:00', '8:00').index)
+    
+    x["early_day"] = __np.where(early_day_b, 1, 0)
+    x["late_day"] = __np.where(late_day_b, 1, 0)
+    x["early_night"] = __np.where(early_night_b, 1, 0)
+    x["late_night"] = __np.where(late_night_b, 1, 0)
+
+    x["day"] = __np.where(day_b, 1, 0)
+    x["night"] = __np.where(night_b, 1, 0)
+    x["whole_date"] = 1
+    
+    xx = x.drop(columns="image_id",axis=0)\
+    .groupby([x.user_id,x.image_posted_time.dt.date])\
+    .sum()
+    
+    out = xx.groupby("user_id").mean()
+    
+    return out
+
     
