@@ -70,11 +70,12 @@ def avg_number_of_faces_from_photos_with_faces():
     num_faces = __img_f.number_of_faces()
 
     out = image_date[["image_id","user_id"]]\
-    .merge(num_faces,on="image_id",how="inner")\
+    .merge(num_faces,on="image_id",how="outer")\
     .fillna(0)\
     .groupby("user_id")\
     .mean()\
-    .rename(columns = {'number_of_face': 'avg_number_of_faces_over_images_with_faces'})
+    .rename(columns = {'number_of_face': 'avg_number_of_faces_over_images_with_faces'})\
+    .reset_index()
 
     return out
 
@@ -89,8 +90,9 @@ def avg_number_of_faces_over_all_photos():
     .fillna(0)\
     .groupby("user_id")\
     .mean()\
-    .rename(columns = {'number_of_face': 'avg_number_of_faces_over_all_images'})
-    
+    .rename(columns = {'number_of_face': 'avg_number_of_faces_over_all_images'})\
+    .reset_index()
+
     return out
 
 def avg_engagement():
@@ -144,7 +146,7 @@ def avg_posts_per_day():
     .groupby([x.user_id,x.image_posted_time.dt.date])\
     .sum()
 
-    out = xx.groupby("user_id").mean()
+    out = xx.groupby("user_id").mean().reset_index()
 
     return out
 
