@@ -118,7 +118,7 @@ def anp_avg_emotional_scores():
     '''
     Returns the average anp emotion score attached to an emoation label.
     '''
-    anp = __pd.read_pickle(_data_dir + "anp.pickle")
+    anp = __pd.read_pickle(__data_dir + "anp.pickle")
     
     avg_emo_scores = anp[["image_id","emotion_label","emotion_score"]]\
                         .groupby(by=["image_id","emotion_label"])\
@@ -139,3 +139,40 @@ def ratio_gender(confidence=90):
     p = p.assign(ratio_male=p.Male / (p.Male + p.Female))
     p = p.assign(ratio_female=p.Female / (p.Male + p.Female))
     return p[['image_id', 'ratio_male', 'ratio_female']]
+
+
+def anp_cluster_groups():
+    
+    from scipy.stats import boxcox
+    from sklearn.decomposition import PCA
+    from sklearn.mixture import GaussianMixture
+
+    anp_avg_r = anp_avg_emotional_scores()
+
+    anp_avg_t = anp_avg_r.copy()
+
+    # transform the data, we shift it by 1 and then apply boxcox which will use the best transformation 
+    # on the data to normalise it. This is important as PCA is sensitive.
+    for col_name in anp_avg_r.columns[1:]:
+        anp_avg_t[[col_name]] = boxcox(anp_avg_r[[col_name]]+1)[0]
+        
+    # remove image_id, we dont want the pca to look at it    
+    only_anp = anp_avg_t.drop(columns=["image_id"])
+    
+    # reduce our dimensions to 2. This is optimal for clustering methods
+    model = PCA(n_components=2)
+    pca = model.fit(only_anp)
+    
+    #get the pca transformed values
+    anp_pca = pca.transform(only_anp)
+    
+    # define and train clustering model
+    gmm = GaussianMixture(n_components=3,covariance_type='full').fit(anp_pca)
+
+    # determine which clsuters the data belong to
+    prediction = gmm.predict(anp_pca)
+    
+    # construct the output data frame, image_id & binary varaibles for cluster 0,1,2
+    out = __pd.concat([anp_avg_r[["image_id"]],__pd.get_dummies(prediction,prefix="cluster")],axis=1)
+    
+    return out
