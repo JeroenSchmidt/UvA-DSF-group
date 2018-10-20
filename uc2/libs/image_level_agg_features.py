@@ -29,7 +29,7 @@ def number_of_faces_per_emotion(confidence = 75):
 def final_like_and_comments():
     '''Returns the number of final likes and comments per image'''
     image_metrics = __pd.read_pickle(__data_dir + "image_metrics.pickle")    
-    
+
     final_image_stats = image_metrics[["image_id","comment_count","like_count"]].groupby(by="image_id").max().reset_index()
 
     return final_image_stats
@@ -101,7 +101,7 @@ def anp_average_emotional_scores():
     '''
     Returns the average anp emotion score attached to an emoation label.
     '''
-    anp = pd.read_pickle(_data_dir + "anp.pickle")
+    anp = __pd.read_pickle(_data_dir + "anp.pickle")
     
     avg_emo_scores = anp[["image_id","emotion_label","emotion_score"]]\
                         .groupby(by=["image_id","emotion_label"])\
@@ -114,4 +114,11 @@ def anp_average_emotional_scores():
 
     return avg_emo_scores
     
-    
+def ratio_gender(confidence=90):
+    face = __pd.read_pickle(__data_dir + "face.pickle")
+    face_filter = face[face.face_gender_confidence >= confidence][['image_id', 'face_id', 'face_gender']]
+    face_filter = face_filter.drop_duplicates()[['image_id', 'face_gender']]
+    p = __pd.pivot_table(face_filter, index=['image_id'], columns=['face_gender'], aggfunc='size', fill_value=0).reset_index()
+    p = p.assign(ratio_male=p.Male / (p.Male + p.Female))
+    p = p.assign(ratio_female=p.Female / (p.Male + p.Female))
+    return p[['image_id', 'ratio_male', 'ratio_female']]
