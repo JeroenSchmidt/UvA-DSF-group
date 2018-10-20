@@ -215,3 +215,26 @@ def avg_ratio_gender(confidence=90):
     avg_ratio_gender = __pd.merge(ratio_gender, image_data[['user_id', 'image_id']], on='image_id', how='outer')
     avg_ratio_gender.fillna(0, inplace=True)
     return avg_ratio_gender.groupby('user_id').mean().reset_index()
+
+def proportion_image_cluster():
+    
+    anp_cg = __img_f.anp_cluster_groups()
+    u = instagram_account_stats()[["user_id","user_posted_photos"]]
+
+    image_date = __pd.read_pickle(__data_dir + "image_data.pickle")    
+    image_user = image_date[["image_id","user_id"]]
+    
+    user_clusters = image_user.merge(anp_cg,on="image_id",how="left").fillna(0).drop("image_id",axis=1)
+    
+    user_clusters = user_clusters.groupby("user_id").sum()\
+                                        .reset_index()\
+                                        .merge(u,on="user_id",how="inner")\
+                                        .reset_index()
+    
+    cluster_proportions = __pd.concat([user_clusters.user_id,
+                        user_clusters.iloc[:,2:-1]\
+                                    .divide(user_clusters.user_posted_photos,
+                                            axis=0)
+                       ],axis=1)
+    
+    return cluster_proportions
