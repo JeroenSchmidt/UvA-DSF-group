@@ -221,7 +221,7 @@ def proportion_image_cluster():
     anp_cg = __img_f.anp_cluster_groups()
     u = instagram_account_stats()[["user_id","user_posted_photos"]]
 
-    image_date = pd.read_pickle(__data_dir + "image_data.pickle")    
+    image_date = __pd.read_pickle(__data_dir + "image_data.pickle")    
     image_user = image_date[["image_id","user_id"]]
     
     user_clusters = image_user.merge(anp_cg,on="image_id",how="left").fillna(0).drop("image_id",axis=1)
@@ -231,7 +231,7 @@ def proportion_image_cluster():
                                         .merge(u,on="user_id",how="inner")\
                                         .reset_index()
     
-    cluster_proportions = pd.concat([user_clusters.user_id,
+    cluster_proportions = __pd.concat([user_clusters.user_id,
                         user_clusters.iloc[:,2:-1]\
                                     .divide(user_clusters.user_posted_photos,
                                             axis=0)
