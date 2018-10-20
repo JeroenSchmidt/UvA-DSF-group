@@ -1,6 +1,7 @@
 import pandas as __pd
 
 import image_level_agg_features as __img_f
+import numpy as np
 
 
 __data_dir = "../../data/Visual_well_being/"
@@ -93,4 +94,38 @@ def average_engagement():
     avg_engagement = avg_engagement.rename(columns = {'likes': 'avg_likes', 'comments': 'avg_comments'})
 
     return avg_engagement
+
+def filter_features():
+    '''
+    Returns percentage of happy/depressed filters, ratio of happy over depressed filters
+    '''
+    image_data = __pd.read_pickle('../../data/Visual_well_being/image_data.pickle')
+    # Keep only filters, remove Unknown and Normal entries
+    filter_data = image_data[~image_data.image_filter.isin(['Normal', 'Unknown'])][['image_id', 'image_filter']]
+    # Load the filter categories
+    filter_categories = __pd.read_csv('../../data/Visual_well_being/filter_categories.csv', sep=';')
+    filter_categories = filter_categories.rename(columns={'class':'happiness_class'})
+    # Remove images whose filter is not associated with a category in filter_categories (only 23 of them, no big deal)
+    filter_data = filter_data[filter_data.image_filter.isin(filter_categories['filter'])]
+    # Add filter category information to the dataFrame
+    filter_data = filter_data.merge(filter_categories, how='left', left_on='image_filter', right_on='filter').drop('filter', axis=1)
+    # Create Dummies that will help to summarize happy filters and depressed filters later on.
+    filter_dummies = __pd.get_dummies(filter_data['happiness_class']).rename(columns= {0: 'depressed_filter', 1: 'happy_filter'})
+    filter_data['happy_filter'] = filter_dummies['happy_filter']
+    filter_data['depressed_filter'] = filter_dummies['depressed_filter']
+    filter_data = filter_data.drop(['image_filter', 'happiness_class'], axis=1)
+    # Merge with original image data
+    image_data = image_data.merge(filter_data, 'left', 'image_id')
+    # Create Filter features dataframe
+    filter_features = image_data[['user_id', 'happy_filter', 'depressed_filter']].groupby('user_id').sum().reset_index()
+    filter_features['total_photos'] = image_data[['user_id', 'user_posted_photos']].groupby('user_id').max().reset_index()['user_posted_photos']
+    # Build the features
+    filter_features['happy_flt_pct'] = filter_features['happy_filter'] / filter_features['total_photos']
+    filter_features['depressed_flt_pct'] = filter_features['depressed_filter'] / filter_features['total_photos']
+    filter_features['happy_to_depressed_flt_ratio'] = filter_features['happy_filter'] / filter_features['depressed_filter']
+    filter_features = filter_features.replace([np.inf, -np.inf], np.nan).head()
+    # Drop not neeed columns
+    filter_features = filter_features.drop(['happy_filter', 'depressed_filter', 'total_photos'], axis=1).head()
+
+    return filter_features
     
