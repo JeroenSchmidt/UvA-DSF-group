@@ -114,7 +114,7 @@ def binary_object_matrix(confidence = 0):
                                 .fillna(0)    
     return obj_counts_p
     
-def anp_average_emotional_scores():
+def anp_avg_emotional_scores():
     '''
     Returns the average anp emotion score attached to an emoation label.
     '''
