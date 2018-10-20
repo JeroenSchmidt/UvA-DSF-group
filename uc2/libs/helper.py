@@ -10,4 +10,4 @@ def aggregate():
             df = func()
             df['user_id'] = df['user_id'].astype(int)
             dfs.append(df)
-    return reduce(lambda left,right: pd.merge(left,right,on='user_id'), dfs)
+    return reduce(lambda left,right: pd.merge(left,right,on='user_id', how='outer').fillna(0), dfs)
