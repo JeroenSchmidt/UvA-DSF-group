@@ -81,3 +81,16 @@ def average_number_of_faces_over_all_photos():
     .mean()
     
     return out
+
+def average_engagement():
+    '''
+    Returns the average number of likes and comments per user.
+    '''
+    image_data = __pd.read_pickle('../../data/Visual_well_being/image_data.pickle')
+    updated_metrics = __img_f.final_like_and_comments()
+    image_data = image_data.merge(updated_metrics, how='left', on='image_id')
+    avg_engagement = image_data[['user_id', 'likes', 'comments']].groupby('user_id').mean().reset_index()
+    avg_engagement = avg_engagement.rename(columns = {'likes': 'avg_likes', 'comments': 'avg_comments'})
+
+    return avg_engagement
+    
