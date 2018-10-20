@@ -27,17 +27,22 @@ def instagram_account_stats():
     return instagram_account_info
 
 
-def ratio_of_topics():
+def ratio_of_topics(confidence = 90, subset=True):
     '''
     NOTE: This is an expensive operation.
     
     Returns a matrix of the percentages that shows you what percentage that object appears in the users photos.
+    
+    Arg:
+    confidence: confidence of topic being in image
+    subset: returns subset of topics for the user that we selected in advance as indicators of lifestyle 
+            and which were not sparse.
     '''
 
     image_date = __pd.read_pickle("../../data/Visual_well_being/image_data.pickle")
     user_img = image_date[["image_id","user_id"]].drop_duplicates()
 
-    ob = __img_f.binary_object_matrix()
+    ob = __img_f.binary_object_matrix(confidence)
     photo_counts = instagram_account_stats()[["user_id","user_posted_photos"]]
 
     counts_per_user = ob.merge(user_img,how="inner",on="image_id")\
@@ -51,10 +56,14 @@ def ratio_of_topics():
                                 )
 
     df["user_id"] = counts_per_user.user_id
+    
+    if subset == True:
+        topics_considered = ["user_id","Person","Plant","Food","Collage","Animal","Outdoors","Pet","Book","Dog","Canine","Sky","Alcohol","Crowd","Toy","Cat","Coast","Tree","Beach","Sport","Teddy Bear","Sunlight","Light","Drawing","Sea Life","TV","Dusk","Bikini","Sunrise","Sunset","Swimwear","Selfie","Beard","Woman","Cocktail","Pool","Performer","Coffee Cup","Tattoo","Downtown","Musical Instrument","Festival","City","Laptop","Pizza","Cloud","Beer Bottle","Money","Club","Airplane","Sketch","Sandwich","Cafeteria","Breakfast","Child"]
+        df = df[topics_considered]
 
     return df
 
-def average_number_of_faces_from_photos_with_faces():
+def avg_number_of_faces_from_photos_with_faces():
     '''Returns the average number of faces in photos with faces'''
     image_date = __pd.read_pickle("../../data/Visual_well_being/image_data.pickle")
     num_faces = __img_f.number_of_faces()
@@ -63,11 +72,13 @@ def average_number_of_faces_from_photos_with_faces():
     .merge(num_faces,on="image_id",how="inner")\
     .fillna(0)\
     .groupby("user_id")\
-    .mean()
+    .mean()\
+    .rename(columns = {'number_of_face': 'avg_number_of_faces_over_images_with_faces'})
+
     
     return out
 
-def average_number_of_faces_over_all_photos():
+def avg_number_of_faces_over_all_photos():
     '''Returns the average number of faces accross all photos of the user'''
     image_date = __pd.read_pickle("../../data/Visual_well_being/image_data.pickle")
     num_faces = __img_f.number_of_faces()
@@ -77,11 +88,12 @@ def average_number_of_faces_over_all_photos():
     .merge(num_faces,on="image_id",how="outer")\
     .fillna(0)\
     .groupby("user_id")\
-    .mean()
+    .mean()\
+    .rename(columns = {'number_of_face': 'avg_number_of_faces_over_all_images'})
     
     return out
 
-def average_engagement():
+def avg_engagement():
     '''
     Returns the average number of likes and comments per user.
     '''
@@ -119,14 +131,14 @@ def avg_posts_per_day():
     day_b = x.image_posted_time.isin(x.set_index("image_posted_time").between_time('8:00', '20:00').index)
     night_b = x.image_posted_time.isin(x.set_index("image_posted_time").between_time('20:00', '8:00').index)
     
-    x["early_day"] = __np.where(early_day_b, 1, 0)
-    x["late_day"] = __np.where(late_day_b, 1, 0)
-    x["early_night"] = __np.where(early_night_b, 1, 0)
-    x["late_night"] = __np.where(late_night_b, 1, 0)
+    x["avg_posts_early_day"] = __np.where(early_day_b, 1, 0)
+    x["avg_posts_late_day"] = __np.where(late_day_b, 1, 0)
+    x["avg_posts_early_night"] = __np.where(early_night_b, 1, 0)
+    x["avg_posts_late_night"] = __np.where(late_night_b, 1, 0)
 
-    x["day"] = __np.where(day_b, 1, 0)
-    x["night"] = __np.where(night_b, 1, 0)
-    x["whole_date"] = 1
+    x["avg_posts_day"] = __np.where(day_b, 1, 0)
+    x["avg_posts_night"] = __np.where(night_b, 1, 0)
+    x["avg_posts_whole_date"] = 1
     
     xx = x.drop(columns="image_id",axis=0)\
     .groupby([x.user_id,x.image_posted_time.dt.date])\
