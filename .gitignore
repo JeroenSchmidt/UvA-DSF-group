@@ -110,3 +110,4 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+uc2/exploration_notebooks/dimitris/playground.ipynb
