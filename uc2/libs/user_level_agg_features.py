@@ -54,3 +54,30 @@ def ratio_of_topics():
     df["user_id"] = counts_per_user.user_id
 
     return df
+
+def average_number_of_faces_from_photos_with_faces():
+    '''Returns the average number of faces in photos with faces'''
+    image_date = __pd.read_pickle("../../data/Visual_well_being/image_data.pickle")
+    num_faces = __img_f.number_of_faces()
+    
+    out = image_date[["image_id","user_id"]]\
+    .merge(num_faces,on="image_id",how="inner")\
+    .fillna(0)\
+    .groupby("user_id")\
+    .mean()
+    
+    return out
+
+def average_number_of_faces_over_all_photos():
+    '''Returns the average number of faces accross all photos of the user'''
+    image_date = __pd.read_pickle("../../data/Visual_well_being/image_data.pickle")
+    num_faces = __img_f.number_of_faces()
+    
+    #of the photos that have faces, what is the average
+    out = image_date[["image_id","user_id"]]\
+    .merge(num_faces,on="image_id",how="outer")\
+    .fillna(0)\
+    .groupby("user_id")\
+    .mean()
+    
+    return out
