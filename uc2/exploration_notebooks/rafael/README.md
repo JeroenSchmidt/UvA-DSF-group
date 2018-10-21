@@ -16,3 +16,6 @@ Notebook containing the code for AutoML predictions.
 
 Each csv file contains the feature importances for the models that scored best when trying to predict our target features.
 
+## TODO
+
+* Second run removing features with importance = 0
