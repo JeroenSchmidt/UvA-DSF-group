@@ -4,7 +4,8 @@
 .DS_Store
 
 # Data Files
-*/data/*
+/week3-4/data/*
+/uc1/data/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
