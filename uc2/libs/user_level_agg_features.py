@@ -25,9 +25,9 @@ def instagram_account_stats():
     * Number of photos
     '''
     
-    image_date = __data.load_image_data()
+    image_data = __data.load_image_data()
     
-    instagram_account_info = image_date[["user_id","user_followed_by","user_follows","user_posted_photos"]]\
+    instagram_account_info = image_data[["user_id","user_followed_by","user_follows","user_posted_photos"]]\
                             .drop_duplicates()
     
     return instagram_account_info
@@ -45,10 +45,10 @@ def ratio_of_topics(confidence = 90, subset=True, months=12):
             and which were not sparse.
     '''
 
-    image_date = __data.load_image_data(months)
+    image_data = __data.load_image_data(months)
     #__pd.read_pickle("../../data/Visual_well_being/image_data.pickle")
     
-    user_img = image_date[["image_id","user_id"]].drop_duplicates()
+    user_img = image_data[["image_id","user_id"]].drop_duplicates()
 
     ob = __img_f.binary_object_matrix(confidence)
     photo_counts = instagram_account_stats()[["user_id","user_posted_photos"]]
@@ -73,13 +73,13 @@ def ratio_of_topics(confidence = 90, subset=True, months=12):
 
 def avg_number_of_faces_from_photos_with_faces(months=12):
     '''Returns the average number of faces in photos with faces'''
-    image_date = __data.load_image_data(months)
+    image_data = __data.load_image_data(months)
     
     #__pd.read_pickle("../../data/Visual_well_being/image_data.pickle")
     
     num_faces = __img_f.number_of_faces()
 
-    out = image_date[["image_id","user_id"]]\
+    out = image_data[["image_id","user_id"]]\
     .merge(num_faces,on="image_id",how="left")\
     .fillna(0)\
     .groupby("user_id")\
@@ -91,14 +91,14 @@ def avg_number_of_faces_from_photos_with_faces(months=12):
 
 def avg_number_of_faces_over_all_photos(months=12):
     '''Returns the average number of faces accross all photos of the user'''
-    image_date = __data.load_image_data(months)
+    image_data = __data.load_image_data(months)
     
     #__pd.read_pickle("../../data/Visual_well_being/image_data.pickle")
     
     num_faces = __img_f.number_of_faces()
 
     #of the photos that have faces, what is the average
-    out = image_date[["image_id","user_id"]]\
+    out = image_data[["image_id","user_id"]]\
     .merge(num_faces,on="image_id",how="left")\
     .fillna(0)\
     .groupby("user_id")\
@@ -180,12 +180,13 @@ def avg_posts_per_day(months=12):
     `whole_day`: the average for the whole date
     '''
 
-    image_date = __data.load_image_data(months)
-    
-    #__pd.read_pickle(__data_dir + "image_data.pickle")
-    image_date.image_posted_time = __pd.to_datetime(image_date.image_posted_time)
+    image_data = __data.load_image_data(months)
 
-    x = image_date[["image_posted_time","image_id","user_id"]].drop_duplicates()
+    #__pd.read_pickle(__data_dir + "image_data.pickle")
+    #image_date.image_posted_time = __pd.to_datetime(image_date.image_posted_time)
+
+    x = image_data[["image_posted_time","image_id","user_id"]].drop_duplicates()
+
     early_day_b = x.image_posted_time.isin(x.set_index("image_posted_time").between_time('8:00', '12:00').index)
     late_day_b = x.image_posted_time.isin(x.set_index("image_posted_time").between_time('12:00', '20:00').index)
     early_night_b = x.image_posted_time.isin(x.set_index("image_posted_time").between_time('20:00', '00:00').index)
@@ -193,7 +194,7 @@ def avg_posts_per_day(months=12):
 
     day_b = x.image_posted_time.isin(x.set_index("image_posted_time").between_time('8:00', '20:00').index)
     night_b = x.image_posted_time.isin(x.set_index("image_posted_time").between_time('20:00', '8:00').index)
-    
+
     x["avg_posts_early_day"] = __np.where(early_day_b, 1, 0)
     x["avg_posts_late_day"] = __np.where(late_day_b, 1, 0)
     x["avg_posts_early_night"] = __np.where(early_night_b, 1, 0)
@@ -202,10 +203,10 @@ def avg_posts_per_day(months=12):
     x["avg_posts_day"] = __np.where(day_b, 1, 0)
     x["avg_posts_night"] = __np.where(night_b, 1, 0)
     x["avg_posts_whole_date"] = 1
-    
+
     xx = x.drop(columns="image_id",axis=0)\
     .groupby([x.user_id,x.image_posted_time.dt.date])\
-    .sum()
+    .sum().drop("user_id",axis=1).reset_index()
 
     out = xx.groupby("user_id").mean().reset_index()
 
@@ -252,7 +253,7 @@ def proportion_image_cluster(months=12):
     u = instagram_account_stats()[["user_id","user_posted_photos"]]
 
     image_data = __data.load_image_data(months)
-    image_user = image_date[["image_id","user_id"]]
+    image_user = image_data[["image_id","user_id"]]
     
     user_clusters = image_user.merge(anp_cg,on="image_id",how="left").fillna(0).drop("image_id",axis=1)
     
