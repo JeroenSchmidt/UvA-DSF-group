@@ -33,7 +33,7 @@ def instagram_account_stats():
     return instagram_account_info
 
 
-def ratio_of_topics(confidence = 90, subset=True):
+def ratio_of_topics(confidence = 90, subset=True, months=12):
     '''
     NOTE: This is an expensive operation.
     
@@ -45,7 +45,7 @@ def ratio_of_topics(confidence = 90, subset=True):
             and which were not sparse.
     '''
 
-    image_date = __data.load_image_data()
+    image_date = __data.load_image_data(months)
     #__pd.read_pickle("../../data/Visual_well_being/image_data.pickle")
     
     user_img = image_date[["image_id","user_id"]].drop_duplicates()
@@ -71,9 +71,9 @@ def ratio_of_topics(confidence = 90, subset=True):
 
     return df
 
-def avg_number_of_faces_from_photos_with_faces():
+def avg_number_of_faces_from_photos_with_faces(months=12):
     '''Returns the average number of faces in photos with faces'''
-    image_date = __data.load_image_data()
+    image_date = __data.load_image_data(months)
     
     #__pd.read_pickle("../../data/Visual_well_being/image_data.pickle")
     
@@ -89,9 +89,9 @@ def avg_number_of_faces_from_photos_with_faces():
 
     return out
 
-def avg_number_of_faces_over_all_photos():
+def avg_number_of_faces_over_all_photos(months=12):
     '''Returns the average number of faces accross all photos of the user'''
-    image_date = __data.load_image_data()
+    image_date = __data.load_image_data(months)
     
     #__pd.read_pickle("../../data/Visual_well_being/image_data.pickle")
     
@@ -108,11 +108,11 @@ def avg_number_of_faces_over_all_photos():
 
     return out
 
-def avg_engagement():
+def avg_engagement(months=12):
     '''
     Returns the average number of likes and comments per user.
     '''
-    image_data = __data.load_image_data()
+    image_data = __data.load_image_data(months)
     
     #__pd.read_pickle('../../data/Visual_well_being/image_data.pickle')
     
@@ -123,11 +123,11 @@ def avg_engagement():
 
     return avg_engagement
 
-def filter_features():
+def filter_features(months=12):
     '''
     Returns percentage of happy/depressed filters, ratio of happy over depressed filters
     '''
-    image_data = __data.load_image_data()
+    image_data = __data.load_image_data(months)
     
     #__pd.read_pickle('../../data/Visual_well_being/image_data.pickle')
     
@@ -167,7 +167,7 @@ def filter_features():
     return filter_features
     
 
-def avg_posts_per_day():
+def avg_posts_per_day(months=12):
     '''
     Returns the average number of posts per day that the person posted. Returns 7 averages:
     `early day`: 8:00-12:00
@@ -180,7 +180,7 @@ def avg_posts_per_day():
     `whole_day`: the average for the whole date
     '''
 
-    image_date = __data.load_image_data()
+    image_date = __data.load_image_data(months)
     
     #__pd.read_pickle(__data_dir + "image_data.pickle")
     image_date.image_posted_time = __pd.to_datetime(image_date.image_posted_time)
@@ -211,22 +211,22 @@ def avg_posts_per_day():
 
     return out
 
-def percentage_animals():
+def percentage_animals(months=12):
     '''
     Returns a column called 'percentage_animals' that informs us what is the percentage of animals that the user has
     '''
-    topics = ratio_of_topics()
+    topics = ratio_of_topics(months)
     animals = topics[['Animal', 'Pet', 'Dog', 'Cat', 'Canine']]
     animals = animals.assign(percentage_animals=animals.sum(axis=1))
     animals['user_id'] = topics.user_id
     animals = animals[['user_id', 'percentage_animals']]
     return animals
 
-def average_num_faces_per_image_and_emotion():
+def average_num_faces_per_image_and_emotion(months=12):
     '''
     Returns the average of faces per emotion that the user has per image
     '''
-    image_data = __data.load_image_data()
+    image_data = __data.load_image_data(months)
     
     #__pd.read_pickle(__data_dir + "image_data.pickle")
     num_faces_df = __img_f.number_of_faces_per_emotion()
@@ -234,11 +234,11 @@ def average_num_faces_per_image_and_emotion():
     num_faces_df.fillna(0, inplace=True)
     return num_faces_df.groupby('user_id').mean().reset_index()
 
-def avg_ratio_gender(confidence=90):
+def avg_ratio_gender(confidence=90,months=12):
     '''
     Returns the average of the gender ratio that the user has per image
     '''
-    image_data = __data.load_image_data()
+    image_data = __data.load_image_data(months)
     
     #__pd.read_pickle(__data_dir + "image_data.pickle")
     ratio_gender = __img_f.ratio_gender(confidence)
@@ -246,12 +246,12 @@ def avg_ratio_gender(confidence=90):
     avg_ratio_gender.fillna(0, inplace=True)
     return avg_ratio_gender.groupby('user_id').mean().reset_index()
 
-def proportion_image_cluster():
+def proportion_image_cluster(months=12):
     
     anp_cg = __img_f.anp_cluster_groups()
     u = instagram_account_stats()[["user_id","user_posted_photos"]]
 
-    image_date = __pd.read_pickle(__data_dir + "image_data.pickle")    
+    image_data = __data.load_image_data(months)
     image_user = image_date[["image_id","user_id"]]
     
     user_clusters = image_user.merge(anp_cg,on="image_id",how="left").fillna(0).drop("image_id",axis=1)

@@ -29,9 +29,9 @@ def number_of_faces_per_emotion(confidence = 75):
     return num_faces
 
 
-def final_like_and_comments():
+def final_like_and_comments(months=12):
     '''Returns the number of final likes and comments per image'''
-    image_metrics = __data.load_image_data(months=12)
+    image_metrics = __data.load_image_data(months)
     
     #__pd.read_pickle(__data_dir + "image_metrics.pickle")
 

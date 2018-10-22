@@ -44,7 +44,7 @@ def load_image_data(months=12):
     df.image_posted_time = __pd.to_datetime(df.image_posted_time)    
     
     if months != None:
-        df = __filter_months(months,df)
+        df = __filter_months(df,months)
     
     return df
 
@@ -66,7 +66,7 @@ def __filter_months(image_data,months=12):
     
     df = df[l]
     
-    return df[["image_id"]]
+    return df
 
 def load_image_metrics():
     df = __pd.read_pickle(__data_dir + 'image_metrics.pickle')
