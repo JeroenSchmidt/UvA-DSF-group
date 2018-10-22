@@ -36,6 +36,7 @@ def load_celebrity():
 def load_faces():
     df = __pd.read_pickle(__data_dir + 'face.pickle')
     
+    return df
 
 
 def load_image_data(months=12):

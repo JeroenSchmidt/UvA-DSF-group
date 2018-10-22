@@ -116,7 +116,7 @@ def avg_engagement(months=12):
     
     #__pd.read_pickle('../../data/Visual_well_being/image_data.pickle')
     
-    updated_metrics = __img_f.final_like_and_comments()
+    updated_metrics = __img_f.final_like_and_comments(months)
     image_data = image_data.merge(updated_metrics, how='left', on='image_id')
     avg_engagement = image_data[['user_id', 'likes', 'comments']].groupby('user_id').mean().reset_index()
     avg_engagement = avg_engagement.rename(columns = {'likes': 'avg_likes', 'comments': 'avg_comments'})
