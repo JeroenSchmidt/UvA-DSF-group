@@ -53,7 +53,7 @@ def ratio_of_topics(confidence = 90, subset=True):
     ob = __img_f.binary_object_matrix(confidence)
     photo_counts = instagram_account_stats()[["user_id","user_posted_photos"]]
 
-    counts_per_user = ob.merge(user_img,how="inner",on="image_id")\
+    counts_per_user = ob.merge(user_img,how="right",on="image_id")\
                 .groupby("user_id").sum()\
                 .merge(photo_counts,on="user_id",how="inner")
 
@@ -80,7 +80,7 @@ def avg_number_of_faces_from_photos_with_faces():
     num_faces = __img_f.number_of_faces()
 
     out = image_date[["image_id","user_id"]]\
-    .merge(num_faces,on="image_id",how="outer")\
+    .merge(num_faces,on="image_id",how="left")\
     .fillna(0)\
     .groupby("user_id")\
     .mean()\
@@ -99,7 +99,7 @@ def avg_number_of_faces_over_all_photos():
 
     #of the photos that have faces, what is the average
     out = image_date[["image_id","user_id"]]\
-    .merge(num_faces,on="image_id",how="outer")\
+    .merge(num_faces,on="image_id",how="left")\
     .fillna(0)\
     .groupby("user_id")\
     .mean()\
@@ -230,7 +230,7 @@ def average_num_faces_per_image_and_emotion():
     
     #__pd.read_pickle(__data_dir + "image_data.pickle")
     num_faces_df = __img_f.number_of_faces_per_emotion()
-    num_faces_df = __pd.merge(num_faces_df, image_data[['user_id', 'image_id']], on='image_id', how='outer')
+    num_faces_df = __pd.merge(num_faces_df, image_data[['user_id', 'image_id']], on='image_id', how='right')
     num_faces_df.fillna(0, inplace=True)
     return num_faces_df.groupby('user_id').mean().reset_index()
 
@@ -242,7 +242,7 @@ def avg_ratio_gender(confidence=90):
     
     #__pd.read_pickle(__data_dir + "image_data.pickle")
     ratio_gender = __img_f.ratio_gender(confidence)
-    avg_ratio_gender = __pd.merge(ratio_gender, image_data[['user_id', 'image_id']], on='image_id', how='outer')
+    avg_ratio_gender = __pd.merge(ratio_gender, image_data[['user_id', 'image_id']], on='image_id', how='right')
     avg_ratio_gender.fillna(0, inplace=True)
     return avg_ratio_gender.groupby('user_id').mean().reset_index()
 
