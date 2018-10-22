@@ -2,13 +2,16 @@ import pandas as __pd
 import numpy as __np
 import image_level_agg_features as __img_f
 import numpy as np
+import load_clean_data as __data
 
 
 __data_dir = "../../data/Visual_well_being/"
 
 def age():
     '''Returns age of individual when they filled in the survay'''
-    survey = __pd.read_pickle(__data_dir + "survey.pickle")
+    survey = __data.load_survey()
+    #__pd.read_pickle(__data_dir + "survey.pickle")
+    
     survey["age"] = __pd.to_datetime(survey.start_q).dt.year - survey.born
     survey = survey[["insta_user_id","age"]]
     survey.columns = ['user_id', 'age']
@@ -22,7 +25,8 @@ def instagram_account_stats():
     * Number of photos
     '''
     
-    image_date = __pd.read_pickle(__data_dir + "image_data.pickle")
+    image_date = __data.load_image_data()
+    
     instagram_account_info = image_date[["user_id","user_followed_by","user_follows","user_posted_photos"]]\
                             .drop_duplicates()
     
@@ -41,7 +45,9 @@ def ratio_of_topics(confidence = 90, subset=True):
             and which were not sparse.
     '''
 
-    image_date = __pd.read_pickle("../../data/Visual_well_being/image_data.pickle")
+    image_date = __data.load_image_data()
+    #__pd.read_pickle("../../data/Visual_well_being/image_data.pickle")
+    
     user_img = image_date[["image_id","user_id"]].drop_duplicates()
 
     ob = __img_f.binary_object_matrix(confidence)
@@ -67,7 +73,10 @@ def ratio_of_topics(confidence = 90, subset=True):
 
 def avg_number_of_faces_from_photos_with_faces():
     '''Returns the average number of faces in photos with faces'''
-    image_date = __pd.read_pickle("../../data/Visual_well_being/image_data.pickle")
+    image_date = __data.load_image_data()
+    
+    #__pd.read_pickle("../../data/Visual_well_being/image_data.pickle")
+    
     num_faces = __img_f.number_of_faces()
 
     out = image_date[["image_id","user_id"]]\
@@ -82,7 +91,10 @@ def avg_number_of_faces_from_photos_with_faces():
 
 def avg_number_of_faces_over_all_photos():
     '''Returns the average number of faces accross all photos of the user'''
-    image_date = __pd.read_pickle("../../data/Visual_well_being/image_data.pickle")
+    image_date = __data.load_image_data()
+    
+    #__pd.read_pickle("../../data/Visual_well_being/image_data.pickle")
+    
     num_faces = __img_f.number_of_faces()
 
     #of the photos that have faces, what is the average
@@ -100,7 +112,10 @@ def avg_engagement():
     '''
     Returns the average number of likes and comments per user.
     '''
-    image_data = __pd.read_pickle('../../data/Visual_well_being/image_data.pickle')
+    image_data = __data.load_image_data()
+    
+    #__pd.read_pickle('../../data/Visual_well_being/image_data.pickle')
+    
     updated_metrics = __img_f.final_like_and_comments()
     image_data = image_data.merge(updated_metrics, how='left', on='image_id')
     avg_engagement = image_data[['user_id', 'likes', 'comments']].groupby('user_id').mean().reset_index()
@@ -112,26 +127,35 @@ def filter_features():
     '''
     Returns percentage of happy/depressed filters, ratio of happy over depressed filters
     '''
-    image_data = __pd.read_pickle('../../data/Visual_well_being/image_data.pickle')
+    image_data = __data.load_image_data()
+    
+    #__pd.read_pickle('../../data/Visual_well_being/image_data.pickle')
+    
     # Keep only filters, remove Unknown and Normal entries
     filter_data = image_data[~image_data.image_filter.isin(['Normal', 'Unknown'])][['image_id', 'image_filter']]
     # Load the filter categories
     filter_categories = __pd.read_csv('../../data/Visual_well_being/filter_categories.csv', sep=';')
     filter_categories = filter_categories.rename(columns={'class':'happiness_class'})
+    
     # Remove images whose filter is not associated with a category in filter_categories (only 23 of them, no big deal)
     filter_data = filter_data[filter_data.image_filter.isin(filter_categories['filter'])]
+    
     # Add filter category information to the dataFrame
     filter_data = filter_data.merge(filter_categories, how='left', left_on='image_filter', right_on='filter').drop('filter', axis=1)
+    
     # Create Dummies that will help to summarize happy filters and depressed filters later on.
     filter_dummies = __pd.get_dummies(filter_data['happiness_class']).rename(columns= {0: 'depressed_filter', 1: 'happy_filter'})
     filter_data['happy_filter'] = filter_dummies['happy_filter']
     filter_data['depressed_filter'] = filter_dummies['depressed_filter']
     filter_data = filter_data.drop(['image_filter', 'happiness_class'], axis=1)
+    
     # Merge with original image data
     image_data = image_data.merge(filter_data, 'left', 'image_id')
+    
     # Create Filter features dataframe
     filter_features = image_data[['user_id', 'happy_filter', 'depressed_filter']].groupby('user_id').sum().reset_index()
     filter_features['total_photos'] = image_data[['user_id', 'user_posted_photos']].groupby('user_id').max().reset_index()['user_posted_photos']
+    
     # Build the features
     filter_features['happy_flt_pct'] = filter_features['happy_filter'] / filter_features['total_photos']
     filter_features['depressed_flt_pct'] = filter_features['depressed_filter'] / filter_features['total_photos']
@@ -156,7 +180,9 @@ def avg_posts_per_day():
     `whole_day`: the average for the whole date
     '''
 
-    image_date = __pd.read_pickle(__data_dir + "image_data.pickle")
+    image_date = __data.load_image_data()
+    
+    #__pd.read_pickle(__data_dir + "image_data.pickle")
     image_date.image_posted_time = __pd.to_datetime(image_date.image_posted_time)
 
     x = image_date[["image_posted_time","image_id","user_id"]].drop_duplicates()
@@ -200,7 +226,9 @@ def average_num_faces_per_image_and_emotion():
     '''
     Returns the average of faces per emotion that the user has per image
     '''
-    image_data = __pd.read_pickle(__data_dir + "image_data.pickle")
+    image_data = __data.load_image_data()
+    
+    #__pd.read_pickle(__data_dir + "image_data.pickle")
     num_faces_df = __img_f.number_of_faces_per_emotion()
     num_faces_df = __pd.merge(num_faces_df, image_data[['user_id', 'image_id']], on='image_id', how='outer')
     num_faces_df.fillna(0, inplace=True)
@@ -210,7 +238,9 @@ def avg_ratio_gender(confidence=90):
     '''
     Returns the average of the gender ratio that the user has per image
     '''
-    image_data = __pd.read_pickle(__data_dir + "image_data.pickle")
+    image_data = __data.load_image_data()
+    
+    #__pd.read_pickle(__data_dir + "image_data.pickle")
     ratio_gender = __img_f.ratio_gender(confidence)
     avg_ratio_gender = __pd.merge(ratio_gender, image_data[['user_id', 'image_id']], on='image_id', how='outer')
     avg_ratio_gender.fillna(0, inplace=True)

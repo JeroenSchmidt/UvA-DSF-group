@@ -1,12 +1,13 @@
 import pandas as __pd
 import numpy as __np
-
-
-__data_dir = "../../data/Visual_well_being/"
+import load_clean_data as __data
+ 
+#__data_dir = "../../data/Visual_well_being/"
 
 def number_of_faces():
     '''Returns a count of unique faces in a picture'''
-    face = __pd.read_pickle(__data_dir + 'face.pickle')
+    face = __data.load_faces()
+    #__pd.read_pickle(__data_dir + 'face.pickle')
     number_of_face = face[["image_id","face_id"]].drop_duplicates().groupby(by=["image_id"]).count()
     number_of_face = number_of_face.rename(columns={"face_id":"number_of_face"}).reset_index()
     
@@ -15,7 +16,8 @@ def number_of_faces():
 
 def number_of_faces_per_emotion(confidence = 75):
     '''Returns the number of faces per emotion within an image.'''
-    face = __pd.read_pickle(__data_dir + 'face.pickle')
+    face = __data.load_faces()
+    #__pd.read_pickle(__data_dir + 'face.pickle')
     
     num_faces = face[["image_id","face_emo","emo_confidence"]][face.emo_confidence >= confidence]\
             .groupby(by=["image_id","face_emo"]).count()\
@@ -29,7 +31,9 @@ def number_of_faces_per_emotion(confidence = 75):
 
 def final_like_and_comments():
     '''Returns the number of final likes and comments per image'''
-    image_metrics = __pd.read_pickle(__data_dir + "image_metrics.pickle")
+    image_metrics = __data.load_image_data(months=12)
+    
+    #__pd.read_pickle(__data_dir + "image_metrics.pickle")
 
     # Sort by id & date, drop_duplicates per image_id by keeping the last.
     final_likes = image_metrics.sort_values(by=['image_id', 'like_count_time_created'])[['image_id', 'like_count_time_created', 'like_count']]
@@ -56,7 +60,8 @@ def average_emotions_per_image():
     Returns the mean of each emotion within an image. 
     Note: if an image has 6 faces and only 2 faces are sad, the mean will only be of the emotions assocaited to those 2 faces.
     '''
-    face = __pd.read_pickle(__data_dir + 'face.pickle')
+    face = __data.load_faces()
+    #__pd.read_pickle(__data_dir + 'face.pickle')
 
     face = face.pivot_table(aggfunc="mean",index=["image_id"],columns="face_emo",values="emo_confidence")\
                     .reset_index()\
@@ -71,6 +76,7 @@ def number_of_gender_faces(confidence = 0):
     
     You can specify the confidence from 0 to 100 of the gender identification. 
     '''
+    face = __data.load_faces()
     
     conf_l = face.face_gender_confidence > confidence
     face_c = face[conf_l]
@@ -99,7 +105,8 @@ def binary_object_matrix(confidence = 0):
         The raw data has a confidence from 70% and above
     '''
     
-    object_labels = __pd.read_pickle(__data_dir + "object_labels.pickle")
+    object_labels = __data.load_objects()
+    #__pd.read_pickle(__data_dir + "object_labels.pickle")
     
     object_labels_l = object_labels.data_amz_label_confidence > confidence
     object_labels_c = object_labels[object_labels_l]
@@ -118,7 +125,8 @@ def anp_avg_emotional_scores():
     '''
     Returns the average anp emotion score attached to an emoation label.
     '''
-    anp = __pd.read_pickle(__data_dir + "anp.pickle")
+    anp = __data.load_anp() 
+    #__pd.read_pickle(__data_dir + "anp.pickle")
     
     avg_emo_scores = anp[["image_id","emotion_label","emotion_score"]]\
                         .groupby(by=["image_id","emotion_label"])\
@@ -132,7 +140,9 @@ def anp_avg_emotional_scores():
     return avg_emo_scores
     
 def ratio_gender(confidence=90):
-    face = __pd.read_pickle(__data_dir + "face.pickle")
+    face = __data.load_faces()
+    #__pd.read_pickle(__data_dir + "face.pickle")
+    
     face_filter = face[face.face_gender_confidence >= confidence][['image_id', 'face_id', 'face_gender']]
     face_filter = face_filter.drop_duplicates()[['image_id', 'face_gender']]
     p = __pd.pivot_table(face_filter, index=['image_id'], columns=['face_gender'], aggfunc='size', fill_value=0).reset_index()
