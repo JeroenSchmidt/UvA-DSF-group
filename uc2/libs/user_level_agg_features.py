@@ -31,7 +31,13 @@ def instagram_account_stats():
                             .drop_duplicates()
     
     return instagram_account_info
-
+    img_usr = __data.load_image_data()[["image_posted_time","user_id","image_id"]]
+    comments_likes = __img_f.final_like_and_comments()
+    
+    counts = img_usr.merge(comments_likes, on="image_id", how="left")[["user_id","likes","comments"]]\
+                        .groupby("user_id").sum().reset_index()
+    
+    return counts
 
 def ratio_of_topics(confidence = 90, subset=True, months=12):
     '''
@@ -269,3 +275,36 @@ def proportion_image_cluster(months=12):
                        ],axis=1)
     
     return cluster_proportions
+
+
+def count_comments_likes(months=12):
+    '''
+    Returns:
+        * total number of comments
+        * total number of likes
+        * number of photos which had 0 comments
+        * number of photos which had 0 likes
+        * number of photos which had > 0 comments
+        * number of photos which had > 0 likes
+    '''
+    img_usr = __data.load_image_data(months)[["user_id","image_id"]]
+    comments_likes = __img_f.final_like_and_comments()
+
+    com_l1 = comments_likes.comments > 0
+    com_l2 = comments_likes.comments == 0
+
+    like_l1 = comments_likes.likes > 0
+    like_l2 = comments_likes.likes == 0
+
+    comments_likes["num_images_with_comments"] = __np.where(com_l1 , 1,0)
+    comments_likes["num_images_no_comments"] = __np.where(com_l2 , 1,0)
+
+    comments_likes["num_images_with_likes"] = __np.where(like_l1 , 1,0)
+    comments_likes["num_images_no_likes"] = __np.where(like_l2 , 1,0)
+
+    out = img_usr.merge(comments_likes, on="image_id", how="left").drop("image_id",axis=1)\
+                    .groupby("user_id").sum().reset_index()
+    
+    out = out.rename(columns={"likes":"total_number_of_likes","comments":"total_number_of_comments"})
+
+    return out
