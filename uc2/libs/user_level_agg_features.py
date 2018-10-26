@@ -308,3 +308,19 @@ def count_comments_likes(months=12):
     out = out.rename(columns={"likes":"total_number_of_likes","comments":"total_number_of_comments"})
 
     return out
+
+def count_face_emotions(months=12):
+    emotion = __img_f.number_of_faces_per_emotion()
+    img_usr = __data.load_image_data(months=12)[["user_id","image_id"]]
+    out = __img_usr.merge(emotion,on="image_id",how="inner").drop(["image_id"],axis=1)\
+                    .groupby("user_id").sum().reset_index()
+    
+    out = out.rename(columns={"ANGRY":"count_ANGRY",
+                        "CALM":"count_CALM",
+                        "CONFUSED":"count_CONFUSED",
+                        "DISGUSTED":"count_DISGUSTED",
+                        "HAPPY":"count_HAPPY",
+                        "SAD":"count_SAD",
+                        "SUPRISED":"count_SUPRISED"})
+    
+    return out
