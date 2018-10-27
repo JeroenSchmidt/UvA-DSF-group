@@ -1,4 +1,6 @@
 
+# Intellij
+.idea/*
 
 # OSX DS files
 .DS_Store
