@@ -53,7 +53,7 @@ def load_image_data(months=12):
 
 def __filter_months(image_data,months=12):
     '''
-    Private function that fuilters out the images that dont fall within x months of the date of survay.
+    Private function that filters out the images that don't fall within x months of the date of survay.
     '''
     
     img = image_data
