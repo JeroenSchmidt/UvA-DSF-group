@@ -31,13 +31,7 @@ def instagram_account_stats():
                             .drop_duplicates()
     
     return instagram_account_info
-    img_usr = __data.load_image_data()[["image_posted_time","user_id","image_id"]]
-    comments_likes = __img_f.final_like_and_comments()
-    
-    counts = img_usr.merge(comments_likes, on="image_id", how="left")[["user_id","likes","comments"]]\
-                        .groupby("user_id").sum().reset_index()
-    
-    return counts
+
 
 def ratio_of_topics(confidence = 90, subset=True, months=12):
     '''
