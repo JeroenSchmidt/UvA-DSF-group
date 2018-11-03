@@ -17,8 +17,7 @@ def clean_data_after_merging_features(df):
                     'H_2', 'P_2', 'N_2', 'A_3', 'N_3', 'E_3', 'H_3', 'R_2', 'M_3', 'R_3',
                     'P_3', 'N_EMO', 'P_EMO', 'HAP', 'LON',
                     'index', 'id', 'user_id', 'insta_user_id', 'network_id', 'start_q',
-                    'end_q', 'private_account', 'completed', 'HAP',
-                    'Animal', 'Pet', 'Canine', 'Dog', 'Cat']
+                    'end_q', 'private_account', 'completed', 'HAP']
     df = df.drop(drop_columns, axis=1)
 
     for col in df.columns:

@@ -177,7 +177,7 @@ def anp_cluster_groups():
     anp_pca = pca.transform(only_anp)
     
     # define and train clustering model
-    gmm = GaussianMixture(n_components=3,covariance_type='full').fit(anp_pca)
+    gmm = GaussianMixture(n_components=3,covariance_type='full',random_state=99).fit(anp_pca)
 
     # determine which clsuters the data belong to
     prediction = gmm.predict(anp_pca)
@@ -186,3 +186,6 @@ def anp_cluster_groups():
     out = __pd.concat([anp_avg_r[["image_id"]],__pd.get_dummies(prediction,prefix="cluster")],axis=1)
     
     return out
+
+
+    

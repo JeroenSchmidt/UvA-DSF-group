@@ -33,7 +33,7 @@ def instagram_account_stats():
     return instagram_account_info
 
 
-def ratio_of_topics(confidence = 90, subset=True, months=12):
+def ratio_of_topics(confidence = 80, subset=True, months=12):
     '''
     NOTE: This is an expensive operation.
     
@@ -57,19 +57,37 @@ def ratio_of_topics(confidence = 90, subset=True, months=12):
                 .groupby("user_id").sum()\
                 .merge(photo_counts,on="user_id",how="inner")
 
-    df = counts_per_user.iloc[:,1:-1]\
+    
+    
+    f = counts_per_user.set_index("user_id")
+    x  = (f.sum() > 30)
+    df = f.iloc[:,list(x.values)]    
+    
+    cols = []
+    for i in df.columns:
+        if i != "user_posted_photos":
+            cols.append("ratio_" + i)
+        else:
+            cols.append(i)
+    
+    df.columns = cols
+
+    df = df.reset_index()
+    
+    out = df.iloc[:,1:-1]\
                         .divide(
-                                counts_per_user.user_posted_photos,
+                                df.user_posted_photos,
                                 axis=0
                                 )
 
-    df["user_id"] = counts_per_user.user_id
+    out["user_id"] = df.user_id
     
-    if subset == True:
-        topics_considered = ["user_id","Person","Plant","Food","Collage","Animal","Outdoors","Pet","Book","Dog","Canine","Sky","Alcohol","Crowd","Toy","Cat","Coast","Tree","Beach","Sport","Teddy Bear","Sunlight","Light","Drawing","Sea Life","TV","Dusk","Bikini","Sunrise","Sunset","Swimwear","Selfie","Beard","Woman","Cocktail","Pool","Performer","Coffee Cup","Tattoo","Downtown","Musical Instrument","Festival","City","Laptop","Pizza","Cloud","Beer Bottle","Money","Club","Airplane","Sketch","Sandwich","Cafeteria","Breakfast","Child"]
-        df = df[topics_considered]
-
-    return df
+    #if subset == True:
+    #    topics_considered = ["user_id","Person","Plant","Food","Collage","Animal","Outdoors","Pet","Book","Dog","Canine","Sky","Alcohol","Crowd","Toy","Cat","Coast","Tree","Beach","Sport","Teddy Bear","Sunlight","Light","Drawing","Sea Life","TV","Dusk","Bikini","Sunrise","Sunset","Swimwear","Selfie","Beard","Woman","Cocktail","Pool","Performer","Coffee Cup","Tattoo","Downtown","Musical Instrument","Festival","City","Laptop","Pizza","Cloud","Beer Bottle","Money","Club","Airplane","Sketch","Sandwich","Cafeteria","Breakfast","Child"]
+    #    df = df[topics_considered]
+    
+  
+    return out
 
 def avg_number_of_faces_from_photos_with_faces(months=12):
     '''Returns the average number of faces in photos with faces'''
@@ -212,16 +230,16 @@ def avg_posts_per_day(months=12):
 
     return out
 
-def percentage_animals(months=12):
-    '''
-    Returns a column called 'percentage_animals' that informs us what is the percentage of animals that the user has
-    '''
-    topics = ratio_of_topics(months)
-    animals = topics[['Animal', 'Pet', 'Dog', 'Cat', 'Canine']]
-    animals = animals.assign(percentage_animals=animals.sum(axis=1))
-    animals['user_id'] = topics.user_id
-    animals = animals[['user_id', 'percentage_animals']]
-    return animals
+#def percentage_animals(months=12):
+#    '''
+#    Returns a column called 'percentage_animals' that informs us what is the percentage of animals that the user has
+#    '''
+#    topics = ratio_of_topics(months)
+#    animals = topics[['Animal', 'Pet', 'Dog', 'Cat', 'Canine']]
+#    animals = animals.assign(percentage_animals=animals.sum(axis=1))
+#    animals['user_id'] = topics.user_id
+#    animals = animals[['user_id', 'percentage_animals']]
+#    return animals
 
 def average_num_faces_per_image_and_emotion(months=12):
     '''
@@ -317,4 +335,29 @@ def count_face_emotions(months=12):
                         "SAD":"count_SAD",
                         "SUPRISED":"count_SUPRISED"})
     
+    return out
+
+
+def counts_objects(months=12,confidence=80):
+    
+    o = __img_f.binary_object_matrix(confidence)
+    image_data = __data.load_image_data(months)
+
+    user_img = image_data[["image_id","user_id"]].drop_duplicates()
+    
+    out = o.merge(user_img,how="right",on="image_id")\
+                .groupby("user_id").sum()\
+                .fillna(0)
+    
+    x  = (out.sum() > 30)
+    out = out.iloc[:,list(x.values)]
+    
+    cols = []
+    for i in out.columns:
+        cols.append("count_" + i)
+        
+    out.columns = cols
+        
+    out = out.reset_index()
+        
     return out
